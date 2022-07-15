@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-LOG="/var/log/dotfiles.log"
+LOG="${HOME}/dotfiles.log"
 GITHUB_USER="hclareth7"
 GITHUB_REPO="dotfiles"
 USER_GIT_AUTHOR_NAME="hclareth7"
