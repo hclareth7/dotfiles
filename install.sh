@@ -37,33 +37,20 @@ download_dotfiles() {
 
 link_dotfiles() {
     # symlink files to the HOME directory.
-    if [[ -f "${DIR}/configs" ]]; then
+    if [[ -d "${DIR}/configs" ]]; then
         _process "→ Symlinking dotfiles in /configs"
 
         # Set variable for list of files
         files="${DIR}/configs"
-
-        # Store IFS separator within a temp variable
-        OIFS=$IFS
-        # Set the separator to a carriage return & a new line break
-        # read in passed-in file and store as an array
-        IFS=$'\r\n'
-        links=($(cat "${files}"))
-
-        # Loop through array of files 
-        for index in ${!links[*]}
+        for index in $(ls -A ${files})
         do
-            for link in ${links[$index]}
-            do
-                _process "→ Linking ${links[$index]}"
-                # set IFS back to space to split string on
-                IFS=$' '
-                # create an array of line items
-                file=(${links[$index]})
-                # Create symbolic link
-                ln -fs "${DIR}/${file[0]}" "${HOME}/${file[1]}"
-            done
-            # set separater back to carriage return & new line break
+            
+            _process "→ Linking $index"
+            # set IFS back to space to split string on
+           
+            # Create symbolic link
+            ln -fs "${DIR}/$index" "${HOME}/$index"
+          
             IFS=$'\r\n'
         done
 
