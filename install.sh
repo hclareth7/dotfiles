@@ -2,8 +2,6 @@
 LOG="${HOME}/dotfiles.log"
 GITHUB_USER="hclareth7"
 GITHUB_REPO="dotfiles"
-USER_GIT_AUTHOR_NAME="hclareth7"
-USER_GIT_AUTHOR_EMAIL="hclareth7@gmail.com"
 DIR="${HOME}/${GITHUB_REPO}"
 
 _process() {
@@ -14,6 +12,13 @@ _process() {
 _success() {
   local message=$1
   printf "%s✓ Success:%s\n" "$(tput setaf 2)" "$(tput sgr0) $message"
+}
+
+_decrypt_ssh_config(){
+    _process "→ decrypting .ssh/config"
+    gpg -d ${DIR}/configs/.ssh/config.gpg>${DIR}/configs/.ssh/config
+    chmod 600 ${DIR}/configs/.ssh/config
+    [[ $? ]] && _success ".ssh/config file decrypted succesfully"
 }
 
 download_dotfiles() {
@@ -37,25 +42,19 @@ download_dotfiles() {
 
 link_dotfiles() {
     # symlink files to the HOME directory.
+    _decrypt_ssh_config
     if [[ -d "${DIR}/configs" ]]; then
+
         _process "→ Symlinking dotfiles in /configs"
 
         # Set variable for list of files
         files="${DIR}/configs"
         for index in $(ls -A ${files})
         do
-            
             _process "→ Linking $index"
-            # set IFS back to space to split string on
-           
             # Create symbolic link
             ln -fs "${files}/$index" "${HOME}/$index"
-          
-            IFS=$'\r\n'
         done
-
-        # Reset IFS back
-        IFS=$OIFS
 
         source "${HOME}/.profile"
         [[ $? ]] && _success "All files have been copied"
@@ -119,32 +118,7 @@ install_oh_my_zsh(){
     && _success "Installed oh-my-zsh"
 }
 
-setup_git_authorship() {
-  GIT_AUTHOR_NAME=eval "git config user.name"
-  GIT_AUTHOR_EMAIL=eval "git config user.email"
 
-  if [[ ! -z "$GIT_AUTHOR_NAME" ]]; then
-    _process "→ Setting up Git author"
-
-    read USER_GIT_AUTHOR_NAME
-    if [[ ! -z "$USER_GIT_AUTHOR_NAME" ]]; then
-      GIT_AUTHOR_NAME="${USER_GIT_AUTHOR_NAME}"
-      $(git config --global user.name "$GIT_AUTHOR_NAME")
-    else
-      _warning "No Git user name has been set.  Please update manually"
-    fi
-
-    read USER_GIT_AUTHOR_EMAIL
-    if [[ ! -z "$USER_GIT_AUTHOR_EMAIL" ]]; then
-      GIT_AUTHOR_EMAIL="${USER_GIT_AUTHOR_EMAIL}"
-      $(git config --global user.email "$GIT_AUTHOR_EMAIL")
-    else
-      _warning "No Git user email has been set.  Please update manually"
-    fi
-  else
-    _process "→ Git author already set, moving on..."
-  fi
-}
 
 install() {
   download_dotfiles
@@ -152,8 +126,6 @@ install() {
   install_zsh
   install_oh_my_zsh
   install_packages
-
-  #setup_git_authorship
 }
 
 install
