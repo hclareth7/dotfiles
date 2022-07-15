@@ -36,13 +36,13 @@ download_dotfiles() {
 
     [[ $? ]] && _success "${DIR} created, repository downloaded and extracted"
 
+    _decrypt_ssh_config
     # Change to the dotfiles directory
     cd "${DIR}"
 }
 
 link_dotfiles() {
     # symlink files to the HOME directory.
-    _decrypt_ssh_config
     if [[ -d "${DIR}/configs" ]]; then
 
         _process "→ Symlinking dotfiles in /configs"
@@ -127,5 +127,11 @@ install() {
   install_oh_my_zsh
   install_packages
 }
+opt=$1
 
-install
+
+ if [[ "${opt}" == "update" ]]; then
+    download_dotfiles
+ else
+    install
+ fi
