@@ -37,11 +37,11 @@ download_dotfiles() {
 
 link_dotfiles() {
     # symlink files to the HOME directory.
-    if [[ -f "${DIR}/." ]]; then
+    if [[ -f "${DIR}/configs" ]]; then
         _process "→ Symlinking dotfiles in /configs"
 
         # Set variable for list of files
-        files="${DIR}/."
+        files="${DIR}/configs"
 
         # Store IFS separator within a temp variable
         OIFS=$IFS
