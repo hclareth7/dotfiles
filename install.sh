@@ -77,11 +77,11 @@ link_dotfiles() {
 
 install_zsh() {
   _process "→ Installing zsh"
-  apt install zsh
+  sudo apt install zsh
   
 
   _process "→ Setting zsh as default shell"
-  chsh -s $(which zsh)
+  sudo chsh -s $(which zsh)
   [[ $? ]] \
   && _success "Installed zsh"
 }
@@ -98,8 +98,8 @@ install_packages() {
 
     # Update and upgrade all packages
     _process "→ Updating and upgrading apt packages"
-    apt update -y
-    apt upgrade -y
+    sudo apt update -y
+    sudo apt upgrade -y
 
     
     # Store IFS within a temp variable
@@ -107,8 +107,15 @@ install_packages() {
 
     # Set the separator to a carriage return & a new line break
     # read in passed-in file and store as an array
-    IFS=$'\r\n' formulae=($(cat "${apts}"))
+    IFS=$'\r\n' packages=($(cat "${apts}"))
 
+    for index in ${!packages[*]}
+    do
+      # Test whether a Homebrew formula is already installed
+      if ! sudo apt list ${packages[$index]} &> /dev/null; then
+        sudo apt install ${packages[$index]}
+      fi
+    done
 
     # Reset IFS back
     IFS=$OIFS
