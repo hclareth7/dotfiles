@@ -50,7 +50,7 @@ link_dotfiles() {
         IFS=$'\r\n'
         links=($(cat "${files}"))
 
-        # Loop through array of files
+        # Loop through array of files 
         for index in ${!links[*]}
         do
             for link in ${links[$index]}
