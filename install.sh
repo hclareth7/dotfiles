@@ -49,7 +49,7 @@ link_dotfiles() {
             # set IFS back to space to split string on
            
             # Create symbolic link
-            ln -fs "${DIR}/$index" "${HOME}/$index"
+            ln -fs "${files}/$index" "${HOME}/$index"
           
             IFS=$'\r\n'
         done
