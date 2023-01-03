@@ -2,7 +2,9 @@
 LOG="${HOME}/dotfiles.log"
 GITHUB_USER="hclareth7"
 GITHUB_REPO="dotfiles"
-DIR="${HOME}/${GITHUB_REPO}"
+DOTFILES_FOLDER=".dotfiles"
+COMPANY_NAME="Ormuco"
+DIR="${HOME}/${DOTFILES_FOLDER}"
 
 _process() {
     echo "$(date) PROCESSING:  $@" >> $LOG
@@ -18,7 +20,15 @@ _decrypt_ssh_config(){
     _process "→ decrypting .ssh/config"
     gpg -d ${DIR}/configs/.ssh/config.gpg>${DIR}/configs/.ssh/config
     chmod 600 ${DIR}/configs/.ssh/config
+
+    gpg -d ${DIR}/configs/${COMPANY_NAME}/.ssh/id_rsa.gpg>${DIR}/configs/${COMPANY_NAME}/.ssh/id_rsa
+    chmod 600 ${DIR}/configs/${COMPANY_NAME}/.ssh/id_rsa
     [[ $? ]] && _success ".ssh/config file decrypted succesfully"
+}
+
+self_setup(){
+  mv  ${DIR}/configs/Company/  ${DIR}/configs/${COMPANY_NAME}/
+  mkdir "${HOME}/HCProjects"
 }
 
 download_dotfiles() {
@@ -34,7 +44,10 @@ download_dotfiles() {
     _process "→ Removing tarball from /tmp directory"
     rm -rf /tmp/${GITHUB_REPO}.tar.gz
 
+
     [[ $? ]] && _success "${DIR} created, repository downloaded and extracted"
+
+    self_setup
 
     _decrypt_ssh_config
     # Change to the dotfiles directory
@@ -59,6 +72,18 @@ link_dotfiles() {
         source "${HOME}/.profile"
         [[ $? ]] && _success "All files have been copied"
     fi
+}
+
+download_self_projects(){
+  if [[ -d "${HOME}/HCProjects/" ]]; then
+  cd "${HOME}/HCProjects/"
+  project_list_file="${DIR}/git_projects/hc_projects"
+
+  while read line; do
+          project_git_url=$(echo $line | awk '{print $1}')
+          git clone $project_git_url
+  done < $file
+  fi
 }
 
 install_zsh() {
@@ -120,12 +145,14 @@ install_oh_my_zsh(){
 
 
 
+
 install() {
   download_dotfiles
   link_dotfiles
   install_zsh
   install_oh_my_zsh
   install_packages
+  download_self_projects
 }
 opt=$1
 
